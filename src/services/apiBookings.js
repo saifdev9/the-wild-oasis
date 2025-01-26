@@ -1,34 +1,35 @@
-import { PAGE_SIZE } from "../utils/constants";
 import { getToday } from "../utils/helpers";
 import supabase from "./supabase";
+import { PAGE_SIZE } from "../utils/constants";
 
 export async function getBookings({ filter, sortBy, page }) {
   let query = supabase
     .from("bookings")
     .select(
-      "id, created_at, startDate, endDate,numNights, numGuests,status, totalPrice , cabins(name), guest(fullName, email)",
+      "id, created_at, startDate, endDate, numNights, numGuests, status, totalPrice, cabins(name), guests(fullName, email)",
       { count: "exact" }
     );
 
-  if (filter) query = query.eq(filter.field, filter.value);
+  // FILTER
+  if (filter) query = query[filter.method || "eq"](filter.field, filter.value);
 
+  // SORT
   if (sortBy)
     query = query.order(sortBy.field, {
       ascending: sortBy.direction === "asc",
     });
 
   if (page) {
-    const from = (page - 1) * (PAGE_SIZE - 1);
-    const to = from + (PAGE_SIZE - 1);
-
+    const from = (page - 1) * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
     query = query.range(from, to);
   }
 
-  let { data, error, count } = await query;
+  const { data, error, count } = await query;
 
   if (error) {
     console.error(error);
-    throw new Error("Booking could not be loaded");
+    throw new Error("Bookings could not be loaded");
   }
 
   return { data, count };
@@ -37,7 +38,7 @@ export async function getBookings({ filter, sortBy, page }) {
 export async function getBooking(id) {
   const { data, error } = await supabase
     .from("bookings")
-    .select("*, cabins(*), guest(*)")
+    .select("*, cabins(*), guests(*)")
     .eq("id", id)
     .single();
 
@@ -50,6 +51,7 @@ export async function getBooking(id) {
 }
 
 // Returns all BOOKINGS that are were created after the given date. Useful to get bookings created in the last 30 days, for example.
+// date: ISOString
 export async function getBookingsAfterDate(date) {
   const { data, error } = await supabase
     .from("bookings")
@@ -69,8 +71,7 @@ export async function getBookingsAfterDate(date) {
 export async function getStaysAfterDate(date) {
   const { data, error } = await supabase
     .from("bookings")
-    // .select('*')
-    .select("*, guest(fullName)")
+    .select("*, guests(fullName)")
     .gte("startDate", date)
     .lte("startDate", getToday());
 
@@ -86,7 +87,7 @@ export async function getStaysAfterDate(date) {
 export async function getStaysTodayActivity() {
   const { data, error } = await supabase
     .from("bookings")
-    .select("*, guest(fullName, nationality, countryFlag)")
+    .select("*, guests(fullName, nationality, countryFlag)")
     .or(
       `and(status.eq.unconfirmed,startDate.eq.${getToday()}),and(status.eq.checked-in,endDate.eq.${getToday()})`
     )

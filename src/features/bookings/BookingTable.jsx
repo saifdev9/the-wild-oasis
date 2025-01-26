@@ -1,16 +1,18 @@
-import Empty from "../../ui/Empty";
-import Menus from "../../ui/Menus";
-import Table from "../../ui/Table";
 import BookingRow from "./BookingRow";
-import useBookings from "./useBookings";
+import Table from "../../ui/Table";
+import Menus from "../../ui/Menus";
+import Empty from "../../ui/Empty";
+
+import { useBookings } from "./useBookings";
 import Spinner from "../../ui/Spinner";
 import Pagination from "../../ui/Pagination";
 
 function BookingTable() {
-  const { isPending, bookings, count } = useBookings();
+  const { bookings, isLoading, count } = useBookings();
 
-  if (isPending) return <Spinner />;
-  if (!bookings?.length) return <Empty resourceName="bookings" />;
+  if (isLoading) return <Spinner />;
+
+  if (!bookings.length) return <Empty resourceName="bookings" />;
 
   return (
     <Menus>

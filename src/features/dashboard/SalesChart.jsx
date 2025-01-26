@@ -1,10 +1,6 @@
-/* eslint-disable react/prop-types */
 import styled from "styled-components";
 import DashboardBox from "./DashboardBox";
 import Heading from "../../ui/Heading";
-
-import { useDark } from "../../context/DarkMode";
-
 import {
   Area,
   AreaChart,
@@ -14,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useDarkMode } from "../../context/DarkModeContext";
 import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
 
 const StyledSalesChart = styled(DashboardBox)`
@@ -27,26 +24,25 @@ const StyledSalesChart = styled(DashboardBox)`
 `;
 
 function SalesChart({ bookings, numDays }) {
-  const { toggle } = useDark();
+  const { isDarkMode } = useDarkMode();
 
-  const alldays = eachDayOfInterval({
+  const allDates = eachDayOfInterval({
     start: subDays(new Date(), numDays - 1),
     end: new Date(),
   });
 
-  const Data = alldays.map((date) => {
+  const data = allDates.map((date) => {
     return {
       label: format(date, "MMM dd"),
       totalSales: bookings
         .filter((booking) => isSameDay(date, new Date(booking.created_at)))
-        .reduce((acc, curr) => acc + curr.totalPrice, 0),
+        .reduce((acc, cur) => acc + cur.totalPrice, 0),
       extrasSales: bookings
         .filter((booking) => isSameDay(date, new Date(booking.created_at)))
-        .reduce((acc, curr) => acc + curr.extrasPrice, 0),
+        .reduce((acc, cur) => acc + cur.extrasPrice, 0),
     };
   });
 
-  const isDarkMode = toggle;
   const colors = isDarkMode
     ? {
         totalSales: { stroke: "#4f46e5", fill: "#4f46e5" },
@@ -64,13 +60,12 @@ function SalesChart({ bookings, numDays }) {
   return (
     <StyledSalesChart>
       <Heading as="h2">
-        Sales from {format(alldays.at(0), "MMM dd yyyy")} &mdash;{" "}
-        {format(alldays.at(-1), "MMM dd yyyy")}
+        Sales from {format(allDates.at(0), "MMM dd yyyy")} &mdash;{" "}
+        {format(allDates.at(-1), "MMM dd yyyy")}{" "}
       </Heading>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={Data}>
-          <CartesianGrid strokeDasharray="4" />
+      <ResponsiveContainer height={300} width="100%">
+        <AreaChart data={data}>
           <XAxis
             dataKey="label"
             tick={{ fill: colors.text }}
@@ -81,28 +76,24 @@ function SalesChart({ bookings, numDays }) {
             tick={{ fill: colors.text }}
             tickLine={{ stroke: colors.text }}
           />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: colors.background,
-            }}
-          />
+          <CartesianGrid strokeDasharray="4" />
+          <Tooltip contentStyle={{ backgroundColor: colors.background }} />
           <Area
-            type="monotone"
             dataKey="totalSales"
+            type="monotone"
             stroke={colors.totalSales.stroke}
             fill={colors.totalSales.fill}
             strokeWidth={2}
-            name="Total Sales"
+            name="Total sales"
             unit="$"
           />
-
           <Area
-            type="monotone"
             dataKey="extrasSales"
+            type="monotone"
             stroke={colors.extrasSales.stroke}
             fill={colors.extrasSales.fill}
             strokeWidth={2}
-            name="Extras Sales"
+            name="Extras sales"
             unit="$"
           />
         </AreaChart>

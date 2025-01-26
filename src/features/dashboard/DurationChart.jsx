@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import styled from "styled-components";
 import Heading from "../../ui/Heading";
 import {
@@ -9,7 +8,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { useDark } from "../../context/DarkMode";
+import { useDarkMode } from "../../context/DarkModeContext";
 
 const ChartBox = styled.div`
   /* Box */
@@ -142,10 +141,10 @@ function prepareData(startData, stays) {
   return data;
 }
 
-function DurationChart({ confirmStays }) {
-  const { toggle: isDarkMode } = useDark();
+function DurationChart({ confirmedStays }) {
+  const { isDarkMode } = useDarkMode();
   const startData = isDarkMode ? startDataDark : startDataLight;
-  const data = prepareData(startData, confirmStays);
+  const data = prepareData(startData, confirmedStays);
 
   return (
     <ChartBox>

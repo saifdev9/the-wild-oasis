@@ -3,19 +3,14 @@ import Button from "../../ui/Button";
 import Form from "../../ui/Form";
 import FormRow from "../../ui/FormRow";
 import Input from "../../ui/Input";
-import useSignup from "./useSignup";
+import { useSignup } from "./useSignup";
 
 // Email regex: /\S+@\S+\.\S+/
 
 function SignupForm() {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    getValues,
-    formState: { errors },
-  } = useForm();
-  const { isSignup, signup } = useSignup();
+  const { signup, isLoading } = useSignup();
+  const { register, formState, getValues, handleSubmit, reset } = useForm();
+  const { errors } = formState;
 
   function onSubmit({ fullName, email, password }) {
     signup(
@@ -30,20 +25,18 @@ function SignupForm() {
     <Form onSubmit={handleSubmit(onSubmit)}>
       <FormRow label="Full name" error={errors?.fullName?.message}>
         <Input
-          disabled={isSignup}
           type="text"
           id="fullName"
-          name="fullName"
+          disabled={isLoading}
           {...register("fullName", { required: "This field is required" })}
         />
       </FormRow>
 
       <FormRow label="Email address" error={errors?.email?.message}>
         <Input
-          disabled={isSignup}
           type="email"
           id="email"
-          name="email"
+          disabled={isLoading}
           {...register("email", {
             required: "This field is required",
             pattern: {
@@ -59,15 +52,14 @@ function SignupForm() {
         error={errors?.password?.message}
       >
         <Input
-          disabled={isSignup}
           type="password"
           id="password"
-          name="password"
+          disabled={isLoading}
           {...register("password", {
             required: "This field is required",
             minLength: {
               value: 8,
-              message: "Password needs a minimum 8 characters",
+              message: "Password needs a minimum of 8 characters",
             },
           })}
         />
@@ -75,26 +67,28 @@ function SignupForm() {
 
       <FormRow label="Repeat password" error={errors?.passwordConfirm?.message}>
         <Input
-          disabled={isSignup}
           type="password"
           id="passwordConfirm"
-          name="repeatPassword"
+          disabled={isLoading}
           {...register("passwordConfirm", {
             required: "This field is required",
-            validate: (value) => {
-              value === getValues().password || "Passwords needs to match";
-            },
+            validate: (value) =>
+              value === getValues().password || "Passwords need to match",
           })}
         />
       </FormRow>
 
       <FormRow>
         {/* type is an HTML attribute! */}
-        <Button disabled={isSignup} variation="secondary" type="reset">
+        <Button
+          variation="secondary"
+          type="reset"
+          disabled={isLoading}
+          onClick={reset}
+        >
           Cancel
         </Button>
-
-        <Button disabled={isSignup}>Create new user</Button>
+        <Button disabled={isLoading}>Create new user</Button>
       </FormRow>
     </Form>
   );

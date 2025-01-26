@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import styled from "styled-components";
 
 const StyledSelect = styled.select`
@@ -15,10 +14,10 @@ const StyledSelect = styled.select`
   box-shadow: var(--shadow-sm);
 `;
 
-function Select({ onChange, options, value, ...props }) {
+function Select({ options, value, onChange, ...props }) {
   return (
-    <StyledSelect onChange={onChange} value={value} {...props}>
-      {options?.map((option) => (
+    <StyledSelect value={value} onChange={onChange} {...props}>
+      {options.map((option) => (
         <option value={option.value} key={option.value}>
           {option.label}
         </option>

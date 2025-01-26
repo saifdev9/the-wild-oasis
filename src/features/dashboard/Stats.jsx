@@ -1,19 +1,27 @@
-/* eslint-disable react/prop-types */
-import { HiOutlineBriefcase, HiOutlineChartBar } from "react-icons/hi";
+import {
+  HiOutlineBanknotes,
+  HiOutlineBriefcase,
+  HiOutlineCalendarDays,
+  HiOutlineChartBar,
+} from "react-icons/hi2";
 import Stat from "./Stat";
-import { HiOutlineBanknotes, HiOutlineCalendarDays } from "react-icons/hi2";
 import { formatCurrency } from "../../utils/helpers";
 
-function Stats({ bookings, confirmStays, numDays, cabinCount }) {
-  const numBookings = bookings?.length;
+function Stats({ bookings, confirmedStays, numDays, cabinCount }) {
+  // 1.
+  const numBookings = bookings.length;
 
-  const sales = bookings.reduce((acc, curr) => acc + curr.totalPrice, 0);
+  // 2.
+  const sales = bookings.reduce((acc, cur) => acc + cur.totalPrice, 0);
 
-  const checkins = confirmStays.length;
+  // 3.
+  const checkins = confirmedStays.length;
 
+  // 4.
   const occupation =
-    confirmStays.reduce((acc, curr) => acc + curr.numNights, 0) /
+    confirmedStays.reduce((acc, cur) => acc + cur.numNights, 0) /
     (numDays * cabinCount);
+  // num checked in nights / all available nights (num days * num cabins)
 
   return (
     <>
